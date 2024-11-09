@@ -1,9 +1,10 @@
-import { Link } from "expo-router";
+import { Link, Redirect, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import EntryBlock from "./components/EntryBlock";
 import * as ImagePicker from "expo-image-picker";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function Page() {
   return (
@@ -15,7 +16,7 @@ export default function Page() {
 
 function Content() {
   const [image, setImage] = useState();
-  console.log(image);
+  const router = useRouter();
 
   const uploadImage = async () => {
     try {
@@ -37,36 +38,38 @@ function Content() {
   const saveImage = async (image) => {
     try {
       setImage(image);
+      router.replace("/imageData");
     } catch (error) {
       throw error;
     }
   };
 
+  // const getEntriesFromServer = () => {
+  // }
+
   return (
-    <View className="h-full relative">
+    <View className="h-full relative ">
       <View className="px-4">
-        <Text className="text-primary font-bold text-4xl mb-8">
-          Last entries
-        </Text>
+        <Text className="text-primary font-bold text-4xl mb-8 ">Servisync</Text>
       </View>
-      <View className="bg-[#fafafa] h-full pt-4">
+      <ScrollView className="bg-[#fafafa] border-t border-[#f0f0f0] h-full pt-4">
         <View className="px-4">
           <Text className="text-black font-bold text-2xl mb-6">
             Last entries
           </Text>
 
           <EntryBlock />
-          <Link href="/imageData" asChild></Link>
         </View>
-      </View>
+      </ScrollView>
       <Pressable
         onPress={() => uploadImage()}
-        className="absolute bottom-20 left-8 right-8 bg-primary items-center rounded-lg py-4 text-white"
+        className="absolute bottom-20 left-8 right-8 bg-primary items-center rounded-lg py-4 text-white flex flex-row justify-center gap-4"
       >
         <Text className="text-[#ffffff] font-semibold text-2xl">Scan</Text>
+        <Icon name="cube-scan" size={25} color="#ffffff" />
       </Pressable>
 
-      <StatusBar style="auto" />
+      <StatusBar style="dark" />
     </View>
   );
 }
