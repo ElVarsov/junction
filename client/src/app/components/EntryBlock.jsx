@@ -10,13 +10,13 @@ export default function EntryBlock() {
     description: "text-base",
   };
 
-  const openLink = () => {
-    // Open the URL in the default browser
-    const buildingAddressFormatted = buildingAddress.replace(/ /g, "+");
-    Linking.openURL(
-      `https://google.com/maps/place/${buildingAddressFormatted}`
-    ).catch((err) => console.error("Failed to open URL: ", err));
-  };
+  // const openLink = () => {
+  //   // Open the URL in the default browser
+  //   const buildingAddressFormatted = buildingAddress.replace(/ /g, "+");
+  //   Linking.openURL(
+  //     `https://google.com/maps/place/${buildingAddressFormatted}`
+  //   ).catch((err) => console.error("Failed to open URL: ", err));
+  // };
 
   return (
     <View className="p-4 bg-[#ffffff] border border-[#F0F0F0] rounded-lg">
