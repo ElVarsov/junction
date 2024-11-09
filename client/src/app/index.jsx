@@ -7,7 +7,7 @@ import * as ImagePicker from "expo-image-picker";
 
 export default function Page() {
   return (
-    <View className="pt-20 px-6 flex flex-1">
+    <View className="pt-20 flex flex-1">
       <Content />
     </View>
   );
@@ -44,18 +44,18 @@ function Content() {
 
   return (
     <View className="h-full relative">
-      <Text className="text-primary font-bold text-4xl">Last entries</Text>
-      <EntryBlock />
-      <Link href="/imageData" asChild>
-        <Pressable
-          onPress={() => uploadImage()}
-          className="absolute bottom-20 left-8 right-8 bg-primary items-center rounded-lg py-4 text-white"
-        >
-          <Text className="text-[#ffffff] font-semibold text-2xl">
-            Add entry
-          </Text>
-        </Pressable>
-      </Link>
+      <Text className="text-primary font-bold text-4xl mb-8">Last entries</Text>
+      <View className="bg-[#fafafa] h-full">
+        <EntryBlock />
+        <Link href="/imageData" asChild>
+          <Pressable
+            onPress={() => uploadImage()}
+            className="absolute bottom-20 left-8 right-8 bg-primary items-center rounded-lg py-4 text-white"
+          >
+            <Text className="text-[#ffffff] font-semibold text-2xl">Scan</Text>
+          </Pressable>
+        </Link>
+      </View>
 
       <StatusBar style="auto" />
     </View>
