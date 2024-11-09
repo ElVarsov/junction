@@ -4,9 +4,9 @@ import ifcopenshell.util.element
 import ifcopenshell.api
 import coordinates
 from ifcopenshell import *
-
+import findspace
 model = ifcopenshell.open('Kaapelitehdas_junction.ifc')
-point = 60.16202160018909, 24.904230906358976
+point= (60.16202160018909, 24.904230906358976)
 
 """Get info from image recognition"""
 def get_new_item_inforamtion(item):
@@ -22,7 +22,26 @@ def get_new_item_inforamtion(item):
      "comment": "comments"
       }
     return item_info
+def update_property(global_id, custom_value, custom_proterty):
+    element = model.by_guid(global_id)
+    # Check if the element has property sets
+    if element:
+        # Get all property sets associated with the element
+        for rel in model.get_inverse(element):
+            if rel.is_a("IfcRelDefinesByProperties"):
+                property_set = rel.RelatingPropertyDefinition
 
+                # Check if the property set is an IfcPropertySet and iterate through its properties
+                if property_set.is_a("IfcPropertySet"):
+                    for prop in property_set.HasProperties:
+                        # Check for the custom property by name
+                        if prop.Name == custom_proterty:
+                            # Edit the property value
+                            prop.NominalValue = model.create_entity(
+                                    "IfcText", custom_value
+                                )  # Replace with your new value
+    
+    
 def create_property_set(model, object, property_set_name, properties):
     # Generate a unique GlobalId for the property set
     property_set_id = ifcopenshell.guid.new()
@@ -68,22 +87,22 @@ def create_property_set(model, object, property_set_name, properties):
     
     return property_set
 
-def add_new_item_with_properties(obj): 
+def add_new_item_with_properties(point): 
     # Create a new object (e.g., IfcFurnishingElement) 
 
     new_item = model.create_entity("IfcBuildingElementProxy", GlobalId=ifcopenshell.guid.new(), Name="New Item") 
  
     # Create an IfcCartesianPoint for the location 
-    x, y, z = *coordinates.convert_gps_to_ifc(point= obj), 0 
+    x, y, z = *coordinates.convert_gps_to_ifc(point= point), 2000 
     x, y, z = float(x), float(y), float(z) 
     #coord = list(x, y, z) 
-    point = model.create_entity("IfcCartesianPoint", Coordinates=[x, y, z]) 
+    loc = model.create_entity("IfcCartesianPoint", Coordinates=[x, y, z]) 
      
     # Define an IfcLocalPlacement for the object 
     placement = model.create_entity( 
         "IfcLocalPlacement", 
         RelativePlacement=model.create_entity( 
-            "IfcAxis2Placement3D", Location=point 
+            "IfcAxis2Placement3D", Location=loc 
         ) 
     ) 
  
@@ -105,7 +124,7 @@ def add_new_item_with_properties(obj):
         ProfileType="AREA",
         XDim=2000.0,  # Width of the box
         YDim=1000.0,  # Depth of the box
-        Position=model.create_entity("IfcAxis2Placement2D", Location=point)
+        Position=model.create_entity("IfcAxis2Placement2D", Location=loc)
     )
 
     # Define the extrusion direction (upward in the Z-axis)
@@ -140,7 +159,8 @@ def add_new_item_with_properties(obj):
     properties = get_new_item_inforamtion(" ") 
  
     create_property_set(model, new_item, "CustomProperties", properties) 
-
+    location_id = findspace.where_are_we(model,(*coordinates.convert_gps_to_ifc(point), 3))
+    update_property(new_item.GlobalId,location_id,"Location")
     print(new_item.get_info())
 
 
