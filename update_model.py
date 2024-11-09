@@ -13,6 +13,8 @@ name =""
 def parse_json(json_string):
     data = json.loads(json_string)
     return data
+
+
 def get_new_item_information(item_json):
     # Parse the JSON input to a dictionary
     item = parse_json(item_json)
@@ -164,7 +166,7 @@ def add_new_item_with_properties(point):
     new_item.Representation = product_shape
 
     # Define custom properties 
-    properties = get_new_item_inforamtion(" ") 
+    properties = get_new_item_inforamtion("") 
  
     create_property_set(model, new_item, "CustomProperties", properties) 
     location_id = findspace.where_are_we(model,(*coordinates.convert_gps_to_ifc(point), 3))
@@ -178,31 +180,31 @@ model.write('Kaapelitehdas_junction_modified.ifc')
 
 
 
-model = ifcopenshell.open('Kaapelitehdas_junction_modified.ifc')
+# model = ifcopenshell.open('Kaapelitehdas_junction_modified.ifc')
 
-def get_properties_from_object(ifc_object):
-    # Dictionary to store properties
-    properties = {}
+# def get_properties_from_object(ifc_object):
+#     # Dictionary to store properties
+#     properties = {}
 
-    # Iterate over the relationships of the object
-    for rel in model.by_type("IfcRelDefinesByProperties"):
-        if ifc_object in rel.RelatedObjects:
-            property_set = rel.RelatingPropertyDefinition
-            if property_set.is_a("IfcPropertySet"):
-                # Iterate over the properties in the property set
-                for prop in property_set.HasProperties:
-                    if prop.is_a("IfcPropertySingleValue"):
-                        # Extract the property name and value
-                        prop_name = prop.Name
-                        prop_value = prop.NominalValue.wrappedValue
-                        properties[prop_name] = prop_value
+#     # Iterate over the relationships of the object
+#     for rel in model.by_type("IfcRelDefinesByProperties"):
+#         if ifc_object in rel.RelatedObjects:
+#             property_set = rel.RelatingPropertyDefinition
+#             if property_set.is_a("IfcPropertySet"):
+#                 # Iterate over the properties in the property set
+#                 for prop in property_set.HasProperties:
+#                     if prop.is_a("IfcPropertySingleValue"):
+#                         # Extract the property name and value
+#                         prop_name = prop.Name
+#                         prop_value = prop.NominalValue.wrappedValue
+#                         properties[prop_name] = prop_value
 
-    return properties
+#     return properties
 
-# Example usage
-def extract_properties_from_new_item():
-    # Assuming you have already created an object in your model
-    new_item = model.by_type("ifcwall")[0]  # Replace with the correct object if necessary
-    properties = get_properties_from_object(new_item)
-    print(properties)
+# # Example usage
+# def extract_properties_from_new_item():
+#     # Assuming you have already created an object in your model
+#     new_item = model.by_type("ifcwall")[0]  # Replace with the correct object if necessary
+#     properties = get_properties_from_object(new_item)
+#     print(properties)
 
