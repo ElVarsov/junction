@@ -1,4 +1,4 @@
-import { Link } from "expo-router";
+import { Link, Redirect, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
@@ -16,6 +16,7 @@ export default function Page() {
 
 function Content() {
   const [image, setImage] = useState();
+  const router = useRouter();
 
   const uploadImage = async () => {
     try {
@@ -37,10 +38,14 @@ function Content() {
   const saveImage = async (image) => {
     try {
       setImage(image);
+      router.replace("/imageData");
     } catch (error) {
       throw error;
     }
   };
+
+  // const getEntriesFromServer = () => {
+  // }
 
   return (
     <View className="h-full relative ">
@@ -56,15 +61,13 @@ function Content() {
           <EntryBlock />
         </View>
       </ScrollView>
-      <Link href="/imageData" asChild>
-        <Pressable
-          onPress={() => uploadImage()}
-          className="absolute bottom-20 left-8 right-8 bg-primary items-center rounded-lg py-4 text-white flex flex-row justify-center gap-4"
-        >
-          <Text className="text-[#ffffff] font-semibold text-2xl">Scan</Text>
-          <Icon name="cube-scan" size={25} color="#ffffff" />
-        </Pressable>
-      </Link>
+      <Pressable
+        onPress={() => uploadImage()}
+        className="absolute bottom-20 left-8 right-8 bg-primary items-center rounded-lg py-4 text-white flex flex-row justify-center gap-4"
+      >
+        <Text className="text-[#ffffff] font-semibold text-2xl">Scan</Text>
+        <Icon name="cube-scan" size={25} color="#ffffff" />
+      </Pressable>
 
       <StatusBar style="dark" />
     </View>
