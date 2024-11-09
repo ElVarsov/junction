@@ -97,7 +97,7 @@ def create_property_set(model, object, property_set_name, properties):
     
     return property_set
 
-def add_new_item_with_properties(point): 
+def add_new_item_with_properties(point,json_object): 
     # Create a new object (e.g., IfcFurnishingElement) 
 
     new_item = model.create_entity("IfcBuildingElementProxy", GlobalId=ifcopenshell.guid.new(), Name = name) 
@@ -166,20 +166,12 @@ def add_new_item_with_properties(point):
     new_item.Representation = product_shape
 
     # Define custom properties 
-    properties = get_new_item_inforamtion("") 
+    properties = get_new_item_information(json_object) 
  
     create_property_set(model, new_item, "CustomProperties", properties) 
     location_id = findspace.where_are_we(model,(*coordinates.convert_gps_to_ifc(point), 3))
     update_property(new_item.GlobalId,location_id,"Location")
     print(new_item.get_info())
-
-
-
-add_new_item_with_properties(point)
-model.write('Kaapelitehdas_junction_modified.ifc')
-
-
-
 # model = ifcopenshell.open('Kaapelitehdas_junction_modified.ifc')
 
 # def get_properties_from_object(ifc_object):
