@@ -46,11 +46,10 @@ def plot_space(id):
     plot_thing(space, "red")
 
     plt.axis('off')
-    plt.savefig('room.png', dpi=300)
     # plt.show()
 
 
-point1_ifc = (-17, -27, 3)
+point1_ifc = (-22, -35, 3)
 
 
 def plot_point(point):
@@ -59,5 +58,7 @@ def plot_point(point):
 
 # get random space for testing
 spaces = [element for element in model.by_type("IFCSPACE")]
-plot_point(point1_ifc)
 plot_space(findspace.where_are_we(model, point1_ifc))
+plot_point(point1_ifc)
+
+plt.savefig('room.png', dpi=300)
