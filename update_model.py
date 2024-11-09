@@ -1,9 +1,12 @@
 import ifcopenshell
 import ifcopenshell.util
 import ifcopenshell.util.element
+import ifcopenshell.api
+import coordinates
 from ifcopenshell import *
 
 model = ifcopenshell.open('Kaapelitehdas_junction.ifc')
+point = 60.16202160018909, 24.904230906358976
 
 """Get info from image recognition"""
 def get_new_item_inforamtion(item):
@@ -65,27 +68,84 @@ def create_property_set(model, object, property_set_name, properties):
     
     return property_set
 
-def add_new_item_with_properties():
-    # Create a new object (e.g., IfcFurnishingElement)
+def add_new_item_with_properties(obj): 
+    # Create a new object (e.g., IfcFurnishingElement) 
 
-    objects = model.by_type("IfcObject")
-    print(len(objects))
-    new_item = model.create_entity("IfcObject", GlobalId=ifcopenshell.guid.new(), Name="New Item")
-    
-    
-    # Define custom properties
-    properties = get_new_item_inforamtion(" ")
+    new_item = model.create_entity("IfcBuildingElementProxy", GlobalId=ifcopenshell.guid.new(), Name="New Item") 
+ 
+    # Create an IfcCartesianPoint for the location 
+    x, y, z = *coordinates.convert_gps_to_ifc(point= obj), 0 
+    x, y, z = float(x), float(y), float(z) 
+    #coord = list(x, y, z) 
+    point = model.create_entity("IfcCartesianPoint", Coordinates=[x, y, z]) 
+     
+    # Define an IfcLocalPlacement for the object 
+    placement = model.create_entity( 
+        "IfcLocalPlacement", 
+        RelativePlacement=model.create_entity( 
+            "IfcAxis2Placement3D", Location=point 
+        ) 
+    ) 
+ 
+    new_item.ObjectPlacement = placement 
+    building_storey = model.by_type("IfcBuildingStorey")[0]  # Get the first building storey 
+    if not building_storey: 
+        raise ValueError("No IfcBuildingStorey found in the model.") 
+ 
+    # Create a relationship to include the new wall in the building storey 
+    model.create_entity( 
+        "IfcRelContainedInSpatialStructure", 
+        GlobalId=ifcopenshell.guid.new(), 
+        RelatingStructure=building_storey, 
+        RelatedElements=[new_item] 
+    ) 
 
-    create_property_set(model, new_item, "CustomProperties", properties)
+    profile = model.create_entity(
+        "IfcRectangleProfileDef",
+        ProfileType="AREA",
+        XDim=2000.0,  # Width of the box
+        YDim=1000.0,  # Depth of the box
+        Position=model.create_entity("IfcAxis2Placement2D", Location=point)
+    )
+
+    # Define the extrusion direction (upward in the Z-axis)
+    extrusion_direction = model.create_entity("IfcDirection", DirectionRatios=(0.0, 0.0, 1.0))
+
+    # Create the 3D shape by extruding the profile
+    solid = model.create_entity(
+        "IfcExtrudedAreaSolid",
+        SweptArea=profile,
+        ExtrudedDirection=extrusion_direction,
+        Depth=3000.0  # Height of the box
+    )
+
+    # Create a shape representation for the object
+    shape_representation = model.create_entity(
+        "IfcShapeRepresentation",
+        ContextOfItems=model.by_type("IfcGeometricRepresentationContext")[0],
+        RepresentationIdentifier="Body",
+        RepresentationType="SweptSolid",
+        Items=[solid]
+    )
+
+    # Assign the shape to a product definition shape
+    product_shape = model.create_entity(
+        "IfcProductDefinitionShape", Representations=[shape_representation]
+    )
     
-    # Output information
-    objects = model.by_type("IfcObject")
-    print(len(objects))
+    # Assign the product shape to the object
+    new_item.Representation = product_shape
+
+    # Define custom properties 
+    properties = get_new_item_inforamtion(" ") 
+ 
+    create_property_set(model, new_item, "CustomProperties", properties) 
+
     print(new_item.get_info())
 
 
 
-add_new_item_with_properties()
+add_new_item_with_properties(point)
 model.write('Kaapelitehdas_junction_modified.ifc')
 
 
@@ -114,9 +174,7 @@ def get_properties_from_object(ifc_object):
 # Example usage
 def extract_properties_from_new_item():
     # Assuming you have already created an object in your model
-    new_item = model.by_type("IfcObject")[0]  # Replace with the correct object if necessary
+    new_item = model.by_type("ifcwall")[0]  # Replace with the correct object if necessary
     properties = get_properties_from_object(new_item)
     print(properties)
-
-extract_properties_from_new_item()
 
