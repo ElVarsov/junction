@@ -68,38 +68,42 @@ def create_property_set(model, object, property_set_name, properties):
     
     return property_set
 
-def add_new_item_with_properties(obj):
-    # Create a new object (e.g., IfcFurnishingElement)
+def add_new_item_with_properties(obj): 
+    # Create a new object (e.g., IfcFurnishingElement) 
 
-    objects = model.by_type("ifcwall")
-    print(len(objects))
-    new_item = model.create_entity("IFcwall", GlobalId=ifcopenshell.guid.new(), Name="New Item")
-    
+    new_item = model.create_entity("IfcBuildingElementProxy", GlobalId=ifcopenshell.guid.new(), Name="New Item") 
+ 
+    # Create an IfcCartesianPoint for the location 
+    x, y, z = *coordinates.convert_gps_to_ifc(point= obj), 0 
+    x, y, z = float(x), float(y), float(z) 
+    #coord = list(x, y, z) 
+    point = model.create_entity("IfcCartesianPoint", Coordinates=[x, y, z]) 
+     
+    # Define an IfcLocalPlacement for the object 
+    placement = model.create_entity( 
+        "IfcLocalPlacement", 
+        RelativePlacement=model.create_entity( 
+            "IfcAxis2Placement3D", Location=point 
+        ) 
+    ) 
+ 
+    new_item.ObjectPlacement = placement 
+    building_storey = model.by_type("IfcBuildingStorey")[0]  # Get the first building storey 
+    if not building_storey: 
+        raise ValueError("No IfcBuildingStorey found in the model.") 
+ 
+    # Create a relationship to include the new wall in the building storey 
+    model.create_entity( 
+        "IfcRelContainedInSpatialStructure", 
+        GlobalId=ifcopenshell.guid.new(), 
+        RelatingStructure=building_storey, 
+        RelatedElements=[new_item] 
+    ) 
+    # Define custom properties 
+    properties = get_new_item_inforamtion(" ") 
+ 
+    create_property_set(model, new_item, "CustomProperties", properties) 
 
-    # Create an IfcCartesianPoint for the location
-    x, y, z = *coordinates.convert_gps_to_ifc(point= obj), 0
-    x, y, z = float(x), float(y), float(z)
-    #coord = list(x, y, z)
-    point = model.create_entity("IfcCartesianPoint", Coordinates=[x, y, z])
-    
-    # Define an IfcLocalPlacement for the object
-    placement = model.create_entity(
-        "IfcLocalPlacement",
-        RelativePlacement=model.create_entity(
-            "IfcAxis2Placement3D", Location=point
-        )
-    )
-
-    new_item.ObjectPlacement = placement
-    
-    # Define custom properties
-    properties = get_new_item_inforamtion(" ")
-
-    create_property_set(model, new_item, "CustomProperties", properties)
-    
-    # Output information
-    objects = model.by_type("ifcwall")
-    print(len(objects))
     print(new_item.get_info())
 
 
@@ -136,6 +140,4 @@ def extract_properties_from_new_item():
     new_item = model.by_type("ifcwall")[0]  # Replace with the correct object if necessary
     properties = get_properties_from_object(new_item)
     print(properties)
-
-extract_properties_from_new_item()
 
