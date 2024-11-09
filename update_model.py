@@ -5,22 +5,30 @@ import ifcopenshell.api
 import coordinates
 from ifcopenshell import *
 import findspace
+import json
 model = ifcopenshell.open('Kaapelitehdas_junction.ifc')
 point= (60.16202160018909, 24.904230906358976)
-
+name =""
 """Get info from image recognition"""
-def get_new_item_inforamtion(item):
-    item_info = {}
+def parse_json(json_string):
+    data = json.loads(json_string)
+    return data
+def get_new_item_information(item_json):
+    # Parse the JSON input to a dictionary
+    item = parse_json(item_json)
+    
+    # Create item_info by loading values from item if they exist
     item_info = {
-     "Location": "Location",
-     "Manufacturer": "Manufacturer",
-     "object_type": "type",
-     "size": "size",
-     "age": "age",
-     "material": "material",
-     "conditions": "conditions",
-     "comment": "comments"
-      }
+        "Location": item.get("Location", "Location"),
+        "Manufacturer": item.get("Manufacturer", "Manufacturer"),
+        "object_type": item.get("type", "type"),
+        "size": item.get("size", "size"),
+        "age": item.get("age", "age"),
+        "material": item.get("material", "material"),
+        "conditions": item.get("conditions", "conditions"),
+        "comment": item.get("comments", "comments")
+    }
+    name = item.get("Name","Name")
     return item_info
 def update_property(global_id, custom_value, custom_proterty):
     element = model.by_guid(global_id)
@@ -90,7 +98,7 @@ def create_property_set(model, object, property_set_name, properties):
 def add_new_item_with_properties(point): 
     # Create a new object (e.g., IfcFurnishingElement) 
 
-    new_item = model.create_entity("IfcBuildingElementProxy", GlobalId=ifcopenshell.guid.new(), Name="New Item") 
+    new_item = model.create_entity("IfcBuildingElementProxy", GlobalId=ifcopenshell.guid.new(), Name = name) 
  
     # Create an IfcCartesianPoint for the location 
     x, y, z = *coordinates.convert_gps_to_ifc(point= point), 2000 
