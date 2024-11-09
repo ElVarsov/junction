@@ -1,5 +1,5 @@
 import { Text, View } from "react-native";
-import { Icon } from "react-native-elements";
+// import { Icon } from "react-native-elements";
 
 export default function EntryBlock() {
   const styles = {
@@ -9,13 +9,13 @@ export default function EntryBlock() {
     description: "text-base",
   };
   return (
-    <View className="py-4">
+    <View className="p-4 bg-[#ffffff] border border-[#F0F0F0] rounded-lg">
       <Text className={styles.date}>Just now</Text>
       <Text className={styles.entryName}>
         [Equipment name] - [Equipment type]
       </Text>
       <View className="flex flex-row items-center py-2">
-        <Icon name="location-pin" color="primary" />
+        {/* <Icon name="location-pin" color="primary" /> */}
         <Text className={styles.location}>Building address/location</Text>
       </View>
 
