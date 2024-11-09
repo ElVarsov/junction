@@ -1,9 +1,22 @@
 import pyproj
 
+
+#Pre calibrated points of the building
 point1 = (60.16236874308105, 24.905288683037003) 
 point2 = (60.1613911264242, 24.902979338824377) 
 point1_ifc = (58.057,39.113) 
 point2_ifc = (-71.485,-68.524)
+
+dx = point1_ifc[0] - point2_ifc[0]
+dy = point1_ifc[1] - point2_ifc[1]
+
+utm_x, utm_y = convert_gps_to_utm(*point1)
+
+point2_x = utm_x - dx
+point2_y = utm_y - dy
+
+zero_x = resx - point2_ifc[0]
+zero_y = resy - point2_ifc[1]
 
 def convert_gps_to_utm(latitude, longitude):
     # Create a pyproj Transformer object to convert WGS84 to UTM (Finland Zone 35N)
@@ -26,22 +39,10 @@ def convert_utm_to_gps(easting, northing):
     
     return latitude, longitude
 
-# Example usage
-latitude = 60.1699
-longitude = 24.9384
-utm_x, utm_y = convert_gps_to_utm(*point1)
-print(f"UTM Coordinates: X={utm_x}, Y={utm_y}")
+def convert_to_ifc(point):
+    utm_x, utm_y = convert_gps_to_utm(*point)
 
-dx = point1_ifc[0] - point2_ifc[0]
-dy = point1_ifc[1] - point2_ifc[1]
+    ifc_x = utm_x - zero_x
+    ifc_y = utm_y - zero_y
 
-resx = utm_x - dx
-resy = utm_y - dy
-
-zero_x = resx - point2_ifc[0]
-zero_y = resy - point2_ifc[1]
-
-
-print(zero_x, zero_y)
-
-print(convert_utm_to_gps(zero_x, zero_y))
+    return ifc_x, ifc_y
