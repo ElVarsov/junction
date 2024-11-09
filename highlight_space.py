@@ -3,6 +3,7 @@ import ifcopenshell.geom
 import matplotlib.pyplot as plt
 from shapely.geometry import Polygon
 import random
+import findspace
 
 path_to_ifc = "Kaapelitehdas_junction.ifc"
 # Open the IFC file
@@ -49,6 +50,14 @@ def plot_space(id):
     # plt.show()
 
 
+point1_ifc = (-17, -27, 3)
+
+
+def plot_point(point):
+    plt.plot(point[0], point[1], 'bo', markersize=2)
+
+
 # get random space for testing
 spaces = [element for element in model.by_type("IFCSPACE")]
-plot_space(random.choice(spaces).GlobalId)
+plot_point(point1_ifc)
+plot_space(findspace.where_are_we(model, point1_ifc))
