@@ -9,7 +9,7 @@ export default function EntryBlock() {
     description: "text-base",
   };
   return (
-    <View className="py-4">
+    <View className="p-4 bg-[#ffffff] border border-[#F0F0F0] rounded-lg">
       <Text className={styles.date}>Just now</Text>
       <Text className={styles.entryName}>
         [Equipment name] - [Equipment type]

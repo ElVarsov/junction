@@ -44,18 +44,27 @@ function Content() {
 
   return (
     <View className="h-full relative">
-      <Text className="text-primary font-bold text-4xl mb-8">Last entries</Text>
-      <View className="bg-[#fafafa] h-full">
-        <EntryBlock />
-        <Link href="/imageData" asChild>
-          <Pressable
-            onPress={() => uploadImage()}
-            className="absolute bottom-20 left-8 right-8 bg-primary items-center rounded-lg py-4 text-white"
-          >
-            <Text className="text-[#ffffff] font-semibold text-2xl">Scan</Text>
-          </Pressable>
-        </Link>
+      <View className="px-4">
+        <Text className="text-primary font-bold text-4xl mb-8">
+          Last entries
+        </Text>
       </View>
+      <View className="bg-[#fafafa] h-full pt-4">
+        <View className="px-4">
+          <Text className="text-black font-bold text-2xl mb-6">
+            Last entries
+          </Text>
+
+          <EntryBlock />
+          <Link href="/imageData" asChild></Link>
+        </View>
+      </View>
+      <Pressable
+        onPress={() => uploadImage()}
+        className="absolute bottom-20 left-8 right-8 bg-primary items-center rounded-lg py-4 text-white"
+      >
+        <Text className="text-[#ffffff] font-semibold text-2xl">Scan</Text>
+      </Pressable>
 
       <StatusBar style="auto" />
     </View>
