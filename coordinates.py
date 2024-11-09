@@ -41,7 +41,7 @@ point2_y = utm_y - dy
 zero_x = point2_x - point2_ifc[0]
 zero_y = point2_y - point2_ifc[1]
 
-def convert_to_ifc(point):
+def convert_gps_to_ifc(point):
     utm_x, utm_y = convert_gps_to_utm(*point)
 
     ifc_x = utm_x - zero_x
