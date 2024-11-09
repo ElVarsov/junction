@@ -7,16 +7,7 @@ point2 = (60.1613911264242, 24.902979338824377)
 point1_ifc = (58.057,39.113) 
 point2_ifc = (-71.485,-68.524)
 
-dx = point1_ifc[0] - point2_ifc[0]
-dy = point1_ifc[1] - point2_ifc[1]
 
-utm_x, utm_y = convert_gps_to_utm(*point1)
-
-point2_x = utm_x - dx
-point2_y = utm_y - dy
-
-zero_x = resx - point2_ifc[0]
-zero_y = resy - point2_ifc[1]
 
 def convert_gps_to_utm(latitude, longitude):
     # Create a pyproj Transformer object to convert WGS84 to UTM (Finland Zone 35N)
@@ -38,6 +29,17 @@ def convert_utm_to_gps(easting, northing):
     longitude, latitude = transformer.transform(easting, northing)
     
     return latitude, longitude
+
+dx = point1_ifc[0] - point2_ifc[0]
+dy = point1_ifc[1] - point2_ifc[1]
+
+utm_x, utm_y = convert_gps_to_utm(*point1)
+
+point2_x = utm_x - dx
+point2_y = utm_y - dy
+
+zero_x = point2_x - point2_ifc[0]
+zero_y = point2_y - point2_ifc[1]
 
 def convert_to_ifc(point):
     utm_x, utm_y = convert_gps_to_utm(*point)
