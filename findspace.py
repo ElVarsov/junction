@@ -47,14 +47,14 @@ def where_are_we(model,point):
             point_found = True
             break  # Remove this if you want to find all spaces containing the point
 
-
-        
-# Example: Adding a custom property to the space
-
     if not point_found:
         return "0"
+    
     space_found = geom_space['space']
+    
     return space_found.GlobalId
+
+
 def block_list(model,location_id):
     #space = model.by_guid(location_id)
     all_blocks = model.by_type('IfcBuildingElementProxies')
