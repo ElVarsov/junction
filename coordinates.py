@@ -1,71 +1,47 @@
 import pyproj
 
-def gps_to_ifc(longitude, latitude, altitude, origin_longitude, origin_latitude, origin_altitude):
-    """
-    Convert GPS coordinates (longitude, latitude, altitude) to IFC project coordinates.
+point1 = (60.16236874308105, 24.905288683037003) 
+point2 = (60.1613911264242, 24.902979338824377) 
+point1_ifc = (58.057,39.113) 
+point2_ifc = (-71.485,-68.524)
 
-    Parameters:
-    - longitude, latitude, altitude: GPS coordinates in degrees and meters.
-    - origin_longitude, origin_latitude, origin_altitude: The origin coordinates in GPS.
+def convert_gps_to_utm(latitude, longitude):
+    # Create a pyproj Transformer object to convert WGS84 to UTM (Finland Zone 35N)
+    transformer = pyproj.Transformer.from_crs("epsg:4326", "epsg:3067", always_xy=True)
+    
+    # Transform the latitude and longitude to UTM coordinates
+    utm_x, utm_y = transformer.transform(longitude, latitude)
+    
+    return utm_x, utm_y
 
-    Returns:
-    - ifc_x, ifc_y, ifc_z: IFC project coordinates in millimeters.
-    """
-    # Create a Transformer object
-    transformer_to_utm = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:32633")  # Adjust UTM zone as needed
+def convert_utm_to_gps(easting, northing):
+    # Use the EPSG code for Finland's UTM Zone 35N
+    epsg_code = "3067"  # ETRS89 / ETRS-TM35FIN, commonly used for Finland
 
-    # Convert the origin and GPS coordinates to UTM
-    origin_x, origin_y = transformer_to_utm.transform(origin_latitude, origin_longitude)
-    gps_x, gps_y = transformer_to_utm.transform(latitude, longitude)
-
-    # Calculate the IFC project coordinates in millimeters
-    ifc_x = (gps_x - origin_x) * 1000  # Convert meters to mm
-    ifc_y = (gps_y - origin_y) * 1000  # Convert meters to mm
-    ifc_z = (altitude - origin_altitude) * 1000  # Convert meters to mm
-
-    return ifc_x, ifc_y, ifc_z
-
-
-def ifc_to_gps(ifc_x, ifc_y, ifc_z, known_longitude, known_latitude, known_altitude):
-    """
-    Calculate the GPS coordinates of the IFC origin (0, 0, 0) given the GPS coordinates of a known point in IFC.
-
-    Parameters:
-    - ifc_x, ifc_y, ifc_z: The IFC coordinates in millimeters of the known point.
-    - known_longitude, known_latitude, known_altitude: The GPS coordinates of the known point.
-
-    Returns:
-    - origin_longitude, origin_latitude, origin_altitude: The GPS coordinates of the origin point in IFC.
-    """
-    # Create a Transformer object
-    transformer_to_utm = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:32633")  # Adjust UTM zone as needed
-    transformer_to_geodetic = pyproj.Transformer.from_crs("EPSG:32633", "EPSG:4326")  # Reverse transformation
-
-    # Convert the known GPS coordinates to UTM
-    known_x, known_y = transformer_to_utm.transform(known_latitude, known_longitude)
-
-    # Calculate the origin UTM coordinates in meters (since IFC is in mm, divide by 1000)
-    origin_x = known_x - (ifc_x / 1000)  # Convert mm to meters
-    origin_y = known_y - (ifc_y / 1000)  # Convert mm to meters
-    origin_z = known_altitude - (ifc_z / 1000)  # Convert mm to meters
-
-    # Convert the origin UTM coordinates back to GPS
-    origin_latitude, origin_longitude = transformer_to_geodetic.transform(origin_x, origin_y)
-    origin_altitude = origin_z
-
-    return origin_longitude, origin_latitude, origin_altitude
+    # Create a pyproj Transformer object to convert UTM to WGS84
+    transformer = pyproj.Transformer.from_crs(f"epsg:{epsg_code}", "epsg:4326", always_xy=True)
+    
+    # Transform the UTM coordinates to latitude and longitude
+    longitude, latitude = transformer.transform(easting, northing)
+    
+    return latitude, longitude
 
 # Example usage
-ifc_x, ifc_y, ifc_z = 5000, 3000, 1000  # Example IFC coordinates in mm
-known_longitude, known_latitude, known_altitude = 24.9384, 60.1699, 50.0  # Known GPS coordinates
+latitude = 60.1699
+longitude = 24.9384
+utm_x, utm_y = convert_gps_to_utm(*point1)
+print(f"UTM Coordinates: X={utm_x}, Y={utm_y}")
 
-origin_longitude, origin_latitude, origin_altitude = ifc_to_gps(ifc_x, ifc_y, ifc_z, known_longitude, known_latitude, known_altitude)
-print(f"Origin GPS Coordinates: Longitude={origin_longitude}, Latitude={origin_latitude}, Altitude={origin_altitude}")
+dx = point1_ifc[0] - point2_ifc[0]
+dy = point1_ifc[1] - point2_ifc[1]
+
+resx = utm_x - dx
+resy = utm_y - dy
+
+zero_x = resx - point2_ifc[0]
+zero_y = resy - point2_ifc[1]
 
 
-# Example usage
-longitude, latitude, altitude = 24.9384, 60.1699, 50.0  # Example GPS coordinates
-origin_longitude, origin_latitude, origin_altitude = 24.9380, 60.1695, 0.0  # Origin point in GPS
+print(zero_x, zero_y)
 
-ifc_x, ifc_y, ifc_z = gps_to_ifc(longitude, latitude, altitude, origin_longitude, origin_latitude, origin_altitude)
-print(f"IFC Project Coordinates: X={ifc_x} mm, Y={ifc_y} mm, Z={ifc_z} mm")
+print(convert_utm_to_gps(zero_x, zero_y))
