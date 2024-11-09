@@ -1,9 +1,12 @@
-import { Link, Redirect, useRouter } from "expo-router";
+import * as FileSystem from "expo-file-system";
+import { Link, useRouter } from "expo-router";
+import * as Location from "expo-location";
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import EntryBlock from "./components/EntryBlock";
 import * as ImagePicker from "expo-image-picker";
+
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function Page() {
@@ -15,37 +18,78 @@ export default function Page() {
 }
 
 function Content() {
-  const [image, setImage] = useState();
   const router = useRouter();
+  const [image, setImage] = useState();
 
-  const uploadImage = async () => {
+  async function uploadImage() {
     try {
+      // Request camera permissions
       await ImagePicker.requestCameraPermissionsAsync();
+
+      // Request location permissions
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        alert("Location permission not granted");
+        return;
+      }
+
+      // Capture photo
       let result = await ImagePicker.launchCameraAsync({
         cameraType: ImagePicker.CameraType.back,
         allowsEditing: false,
       });
 
       if (!result.canceled) {
-        // save image
-        await saveImage(result.assets[0].uri);
+        // Get current location
+        router.replace("/loading");
+        const location = await Location.getCurrentPositionAsync({});
+
+        // Save and process image
+        await saveImage(result.assets[0].uri, location);
       }
     } catch (error) {
       alert("Error uploading image: " + error.message);
     }
-  };
+  }
 
-  const saveImage = async (image) => {
+  const saveImage = async (imageUri, location) => {
     try {
-      setImage(image);
+      // // Convert image to base64
+      // const base64Image = await FileSystem.readAsStringAsync(imageUri, {
+      //   encoding: FileSystem.EncodingType.Base64,
+      // });
+
+      // // Send base64 image and location to the server
+      // await sendImageToServer(base64Image, location);
       router.replace("/imageData");
     } catch (error) {
-      throw error;
+      console.error("Error saving image:", error);
     }
   };
 
-  // const getEntriesFromServer = () => {
-  // }
+  const sendImageToServer = async (base64Image, location) => {
+    try {
+      const response = await fetch("http://10.87.0.190:5000/process", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          image: base64Image,
+          location: {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          },
+        }),
+      });
+
+      const data = await response.json();
+      console.log("Server response:", data);
+      router.replace("/imageData");
+    } catch (error) {
+      console.error("Error sending image to server:", error);
+    }
+  };
 
   return (
     <View className="h-full relative ">
