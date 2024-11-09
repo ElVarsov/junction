@@ -99,6 +99,43 @@ def add_new_item_with_properties(obj):
         RelatingStructure=building_storey, 
         RelatedElements=[new_item] 
     ) 
+
+    profile = model.create_entity(
+        "IfcRectangleProfileDef",
+        ProfileType="AREA",
+        XDim=2000.0,  # Width of the box
+        YDim=1000.0,  # Depth of the box
+        Position=model.create_entity("IfcAxis2Placement2D", Location=point)
+    )
+
+    # Define the extrusion direction (upward in the Z-axis)
+    extrusion_direction = model.create_entity("IfcDirection", DirectionRatios=(0.0, 0.0, 1.0))
+
+    # Create the 3D shape by extruding the profile
+    solid = model.create_entity(
+        "IfcExtrudedAreaSolid",
+        SweptArea=profile,
+        ExtrudedDirection=extrusion_direction,
+        Depth=3000.0  # Height of the box
+    )
+
+    # Create a shape representation for the object
+    shape_representation = model.create_entity(
+        "IfcShapeRepresentation",
+        ContextOfItems=model.by_type("IfcGeometricRepresentationContext")[0],
+        RepresentationIdentifier="Body",
+        RepresentationType="SweptSolid",
+        Items=[solid]
+    )
+
+    # Assign the shape to a product definition shape
+    product_shape = model.create_entity(
+        "IfcProductDefinitionShape", Representations=[shape_representation]
+    )
+    
+    # Assign the product shape to the object
+    new_item.Representation = product_shape
+
     # Define custom properties 
     properties = get_new_item_inforamtion(" ") 
  
