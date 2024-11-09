@@ -11,7 +11,7 @@ point= (60.16202160018909, 24.904230906358976)
 """Get info from image recognition"""
 def get_new_item_inforamtion(item):
     item_info = {}
-    item_info = {"Name": "name",
+    item_info = {
      "Location": "Location",
      "Manufacturer": "Manufacturer",
      "object_type": "type",

@@ -55,5 +55,12 @@ def where_are_we(model,point):
         return "0"
     space_found = geom_space['space']
     return space_found.GlobalId
-
+def block_list(model,location_id):
+    #space = model.by_guid(location_id)
+    all_blocks = model.by_type('IfcBuildingElementProxies')
+    block_in_space =[]
+    for element in all_blocks:
+        if element.Location == location_id:
+            block_in_space.append(element.Name)
+    return block_in_space
 
