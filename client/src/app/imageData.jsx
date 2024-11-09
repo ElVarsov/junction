@@ -1,7 +1,9 @@
 import { Link } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { Image } from "react-native-elements";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function App() {
   const [fields, setFields] = useState(["Equipment name", "Model", "Age"]);
@@ -49,9 +51,11 @@ export default function App() {
           </View>
         ))}
       </ScrollView>
-      <Pressable className="absolute bottom-20 left-8 right-8 bg-primary p-4 items-center rounded-lg">
-        <Text className="text-[#f5c4c4] font-medium text-xl">Add to BIM</Text>
+      <Pressable className="absolute bottom-20 left-8 right-8 bg-primary p-4 flex flex-row justify-center gap-4 items-center rounded-lg">
+        <Text className="text-[#ffffff] font-medium text-xl">Add to BIM</Text>
+        <Icon name="database-plus-outline" color="#ffffff" size="25" />
       </Pressable>
+      <StatusBar style="dark" />
     </View>
   );
 }

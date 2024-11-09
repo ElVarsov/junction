@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import EntryBlock from "./components/EntryBlock";
 import * as ImagePicker from "expo-image-picker";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function Page() {
   return (
@@ -58,13 +59,14 @@ function Content() {
       <Link href="/imageData" asChild>
         <Pressable
           onPress={() => uploadImage()}
-          className="absolute bottom-20 left-8 right-8 bg-primary items-center rounded-lg py-4 text-white"
+          className="absolute bottom-20 left-8 right-8 bg-primary items-center rounded-lg py-4 text-white flex flex-row justify-center gap-4"
         >
           <Text className="text-[#ffffff] font-semibold text-2xl">Scan</Text>
+          <Icon name="cube-scan" size={25} color="#ffffff" />
         </Pressable>
       </Link>
 
-      <StatusBar style="auto" />
+      <StatusBar style="dark" />
     </View>
   );
 }
