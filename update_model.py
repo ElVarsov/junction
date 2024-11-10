@@ -21,16 +21,17 @@ def get_new_item_information(item_json):
     
     # Create item_info by loading values from item if they exist
     item_info = {
-        "Location": item.get("Location", "Location"),
-        "Manufacturer": item.get("Manufacturer", "Manufacturer"),
-        "object_type": item.get("type", "type"),
+        "building_adress": item.get("building_adress", "building_adress"),
+        "location_in_building": item.get("location_in_building", "location_in_building"),
+        "manufacturer": item.get("manufacturer", "manufacturer"),
+        "equipment_type": item.get("equipment_type", "equipment_type"),
         "size": item.get("size", "size"),
         "age": item.get("age", "age"),
         "material": item.get("material", "material"),
-        "conditions": item.get("conditions", "conditions"),
-        "comment": item.get("comments", "comments")
+        "serial_number": item.get("serial_number", "serial_number"),
+        "model": item.get("model", "model")
     }
-    name = item.get("Name","Name")
+    name = item.get("equipment_name","equipment_name")
     return item_info
 def update_property(global_id, custom_value, custom_proterty):
     element = model.by_guid(global_id)
