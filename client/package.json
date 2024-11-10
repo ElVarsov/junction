@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@sucho/react-native-typewriter": "^1.0.0",
+    "dayjs": "^1.11.13",
+    "dayjs-ext": "^2.1.1",
     "expo": "^51.0.0",
     "expo-camera": "~15.0.16",
     "expo-constants": "~16.0.1",

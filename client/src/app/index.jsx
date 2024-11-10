@@ -2,7 +2,7 @@ import * as FileSystem from "expo-file-system";
 import { Link, useRouter } from "expo-router";
 import * as Location from "expo-location";
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import EntryBlock from "./components/EntryBlock";
 import * as ImagePicker from "expo-image-picker";
@@ -54,13 +54,13 @@ function Content() {
 
   const saveImage = async (imageUri, location) => {
     try {
-      // // Convert image to base64
-      // const base64Image = await FileSystem.readAsStringAsync(imageUri, {
-      //   encoding: FileSystem.EncodingType.Base64,
-      // });
+      // Convert image to base64
+      const base64Image = await FileSystem.readAsStringAsync(imageUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
 
-      // // Send base64 image and location to the server
-      // await sendImageToServer(base64Image, location);
+      // Send base64 image and location to the server
+      await sendImageToServer(base64Image, location);
       router.replace("/imageData");
     } catch (error) {
       console.error("Error saving image:", error);
@@ -83,11 +83,32 @@ function Content() {
         }),
       });
 
-      const data = await response.json();
-      console.log("Server response:", data);
-      router.replace("/imageData");
+      // const data = await response.json();
+      // console.log("Server response:", data.entry_id);
+      router.replace(`/imageData`);
     } catch (error) {
       console.error("Error sending image to server:", error);
+    }
+  };
+
+  const [entries, setEntries] = useState([]);
+  useEffect(() => {
+    getEntriesFromServer();
+  }, []);
+
+  const getEntriesFromServer = async () => {
+    try {
+      const response = await fetch("http://10.87.0.190:5000/getentries", {
+        method: "GET",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setEntries(data);
+      } else {
+        console.error("Failed to fetch entries:", response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching entries:", error);
     }
   };
 
@@ -96,15 +117,20 @@ function Content() {
       <View className="px-4">
         <Text className="text-primary font-bold text-4xl mb-8 ">Servisync</Text>
       </View>
-      <ScrollView className="bg-[#fafafa] border-t border-[#f0f0f0] h-full pt-4">
-        <View className="px-4">
-          <Text className="text-black font-bold text-2xl mb-6">
-            Last entries
-          </Text>
-
-          <EntryBlock />
-        </View>
-      </ScrollView>
+      <View className="pb-32">
+        <ScrollView className="bg-[#fafafa] border-t border-[#f0f0f0] h-full pt-4 mb-36">
+          <View className="px-4 pb-24">
+            <Text className="text-black font-bold text-2xl mb-6">
+              Last entries
+            </Text>
+            <View className="pb-52">
+              {entries.map((entry) => {
+                return <EntryBlock key={entry.id} entry={entry} />;
+              })}
+            </View>
+          </View>
+        </ScrollView>
+      </View>
       <Pressable
         onPress={() => uploadImage()}
         className="absolute bottom-20 left-8 right-8 bg-primary items-center rounded-lg py-4 text-white flex flex-row justify-center gap-4"
