@@ -5,22 +5,33 @@ import ifcopenshell.api
 import coordinates
 from ifcopenshell import *
 import findspace
+import json
 model = ifcopenshell.open('Kaapelitehdas_junction.ifc')
 point= (60.16202160018909, 24.904230906358976)
-
+name =""
 """Get info from image recognition"""
-def get_new_item_inforamtion(item):
-    item_info = {}
+def parse_json(json_string):
+    data = json.loads(json_string)
+    return data
+
+
+def get_new_item_information(item_json):
+    # Parse the JSON input to a dictionary
+    item = parse_json(item_json)
+    
+    # Create item_info by loading values from item if they exist
     item_info = {
-     "Location": "Location",
-     "Manufacturer": "Manufacturer",
-     "object_type": "type",
-     "size": "size",
-     "age": "age",
-     "material": "material",
-     "conditions": "conditions",
-     "comment": "comments"
-      }
+        "building_adress": item.get("building_adress", "building_adress"),
+        "location_in_building": item.get("location_in_building", "location_in_building"),
+        "manufacturer": item.get("manufacturer", "manufacturer"),
+        "equipment_type": item.get("equipment_type", "equipment_type"),
+        "size": item.get("size", "size"),
+        "age": item.get("age", "age"),
+        "material": item.get("material", "material"),
+        "serial_number": item.get("serial_number", "serial_number"),
+        "model": item.get("model", "model")
+    }
+    name = item.get("equipment_name","equipment_name")
     return item_info
 def update_property(global_id, custom_value, custom_proterty):
     element = model.by_guid(global_id)
@@ -87,10 +98,10 @@ def create_property_set(model, object, property_set_name, properties):
     
     return property_set
 
-def add_new_item_with_properties(point): 
+def add_new_item_with_properties(point,json_object): 
     # Create a new object (e.g., IfcFurnishingElement) 
 
-    new_item = model.create_entity("IfcBuildingElementProxy", GlobalId=ifcopenshell.guid.new(), Name="New Item") 
+    new_item = model.create_entity("IfcBuildingElementProxy", GlobalId=ifcopenshell.guid.new(), Name = name) 
  
     # Create an IfcCartesianPoint for the location 
     x, y, z = *coordinates.convert_gps_to_ifc(point= point), 2000 
@@ -156,45 +167,37 @@ def add_new_item_with_properties(point):
     new_item.Representation = product_shape
 
     # Define custom properties 
-    properties = get_new_item_inforamtion(" ") 
+    properties = get_new_item_information(json_object) 
  
     create_property_set(model, new_item, "CustomProperties", properties) 
     location_id = findspace.where_are_we(model,(*coordinates.convert_gps_to_ifc(point), 3))
     update_property(new_item.GlobalId,location_id,"Location")
     print(new_item.get_info())
+# model = ifcopenshell.open('Kaapelitehdas_junction_modified.ifc')
 
+# def get_properties_from_object(ifc_object):
+#     # Dictionary to store properties
+#     properties = {}
 
+#     # Iterate over the relationships of the object
+#     for rel in model.by_type("IfcRelDefinesByProperties"):
+#         if ifc_object in rel.RelatedObjects:
+#             property_set = rel.RelatingPropertyDefinition
+#             if property_set.is_a("IfcPropertySet"):
+#                 # Iterate over the properties in the property set
+#                 for prop in property_set.HasProperties:
+#                     if prop.is_a("IfcPropertySingleValue"):
+#                         # Extract the property name and value
+#                         prop_name = prop.Name
+#                         prop_value = prop.NominalValue.wrappedValue
+#                         properties[prop_name] = prop_value
 
-add_new_item_with_properties(point)
-model.write('Kaapelitehdas_junction_modified.ifc')
+#     return properties
 
-
-
-model = ifcopenshell.open('Kaapelitehdas_junction_modified.ifc')
-
-def get_properties_from_object(ifc_object):
-    # Dictionary to store properties
-    properties = {}
-
-    # Iterate over the relationships of the object
-    for rel in model.by_type("IfcRelDefinesByProperties"):
-        if ifc_object in rel.RelatedObjects:
-            property_set = rel.RelatingPropertyDefinition
-            if property_set.is_a("IfcPropertySet"):
-                # Iterate over the properties in the property set
-                for prop in property_set.HasProperties:
-                    if prop.is_a("IfcPropertySingleValue"):
-                        # Extract the property name and value
-                        prop_name = prop.Name
-                        prop_value = prop.NominalValue.wrappedValue
-                        properties[prop_name] = prop_value
-
-    return properties
-
-# Example usage
-def extract_properties_from_new_item():
-    # Assuming you have already created an object in your model
-    new_item = model.by_type("ifcwall")[0]  # Replace with the correct object if necessary
-    properties = get_properties_from_object(new_item)
-    print(properties)
+# # Example usage
+# def extract_properties_from_new_item():
+#     # Assuming you have already created an object in your model
+#     new_item = model.by_type("ifcwall")[0]  # Replace with the correct object if necessary
+#     properties = get_properties_from_object(new_item)
+#     print(properties)
 
