@@ -1,17 +1,14 @@
-# junction
+# Servisync
 
-Winning team
+Easy solution for big problem. Simplifying BIM data collection with AI, update BIM data in real time with precise location.
 
-# The information that we are interested in the equipment are:
+- An elegant solution for non-experts to gather data from information plates of mechanical equipments 🖨️
+- Utilizing AI to streamline BIM data collection, updating BIM data on the fly, providing intuitive locations with 2D floor plan. 🗺️
 
-- equipment name
-- location in the building
-- manufacturer
-- model
-- serial number
-- equipment type (e.g. structure, ventilation, electrical)
-- size
-- age
-- type of material
-- condition
-- surveyor's free comments.
+## Demo
+
+Link: https://drive.google.com/file/d/16-Q0darq2JvsBsa4hTyhyfDkET3X-xgn/view?usp=sharing
+
+## Presentation slide
+
+Link: https://www.figma.com/slides/HjUsVrHpYse0z3UE2myEJr/Servisync?node-id=1-528&t=27roisp4NVBTaT5r-1
